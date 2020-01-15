@@ -536,19 +536,30 @@ public class IndexUtil {
         SelectStatement translatedSelect = IndexStatementRewriter.translate(select, resolver);
         ParseNode whereNode = translatedSelect.getWhere();
         PhoenixStatement statement = new PhoenixStatement(conn);
-        TableRef indexTableRef = new TableRef(index) {
-            @Override
-            public String getColumnDisplayName(ColumnRef ref, boolean schemaNameCaseSensitive, boolean colNameCaseSensitive) {
-                return '"' + ref.getColumn().getName().getString() + '"';
-            }
-        };
-        ColumnResolver indexResolver = FromCompiler.getResolver(indexTableRef);
-        StatementContext context = new StatementContext(statement, indexResolver);
         // Compile to ensure validity
-        WhereCompiler.compile(context, whereNode);
-        StringBuilder buf = new StringBuilder();
-        whereNode.toSQL(indexResolver, buf);
-        return QueryUtil.getViewStatement(index.getSchemaName().getString(), index.getTableName().getString(), buf.toString());
+//        if (index.getName().toString().contains("#")) { // this means it's an index on a child view, not on a base table
+//            TableRef baseTableRef = new TableRef(table);
+//            ColumnResolver tableResolver = FromCompiler.getResolver(baseTableRef);
+//            StatementContext tableContext = new StatementContext(statement, tableResolver);
+//            WhereCompiler.compile(tableContext, whereNode);
+//            StringBuilder buf = new StringBuilder();
+//            whereNode.toSQL(tableResolver, buf);
+//            return QueryUtil.getViewStatement(index.getSchemaName().getString(), index.getTableName().getString(), buf.toString());
+//
+//        } else {
+            TableRef indexTableRef = new TableRef(index) {
+                @Override
+                public String getColumnDisplayName(ColumnRef ref, boolean schemaNameCaseSensitive, boolean colNameCaseSensitive) {
+                    return '"' + ref.getColumn().getName().getString() + '"';
+                }
+            };
+            ColumnResolver indexResolver = FromCompiler.getResolver(indexTableRef);
+            StatementContext context = new StatementContext(statement, indexResolver);
+            WhereCompiler.compile(context, whereNode);
+            StringBuilder buf = new StringBuilder();
+            whereNode.toSQL(indexResolver, buf);
+            return QueryUtil.getViewStatement(index.getSchemaName().getString(), index.getTableName().getString(), buf.toString());
+//        }
     }
     
     public static void wrapResultUsingOffset(final RegionCoprocessorEnvironment environment,

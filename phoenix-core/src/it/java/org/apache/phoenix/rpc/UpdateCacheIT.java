@@ -82,6 +82,22 @@ public class UpdateCacheIT extends ParallelStatsDisabledIT {
             }
         }
     }
+
+    @Test
+    public void testCreateGrandchildView() throws Exception {
+        try (Connection connection = DriverManager.getConnection(getUrl())) {
+            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS Z_BASE_TABLE (ID INTEGER NOT NULL PRIMARY KEY, HOST VARCHAR(10), FLAG BOOLEAN)");
+        }
+        try (Connection connection = DriverManager.getConnection(getUrl())) {
+            connection.createStatement().execute("CREATE VIEW Z_VIEW1 (col1 INTEGER, col2 INTEGER, col3 INTEGER, col4 INTEGER, col5 INTEGER) AS SELECT * FROM Z_BASE_TABLE WHERE ID>10");
+        }
+        try (Connection connection = DriverManager.getConnection(getUrl())) {
+            connection.createStatement().execute("CREATE INDEX Z_INDEX ON Z_BASE_TABLE(HOST)");
+        }
+        try (Connection connection = DriverManager.getConnection(getUrl())) {
+            connection.createStatement().execute("CREATE VIEW GRAND_CHILD1 AS SELECT * FROM Z_VIEW1 WHERE col1 > 2");
+        }
+    }
     
     @Test
     public void testUpdateCacheForNonTxnTable() throws Exception {
