@@ -95,6 +95,7 @@ public class Pherf {
 		    options.addOption("t", "thin", false, "Use the Phoenix Thin Driver");
 		    options.addOption("s", "server", true, "The URL for the Phoenix QueryServer");
 		    options.addOption("b", "batchApi", false, "Use JDBC Batch API for writes");
+		    options.addOption("duration", true, "Max query duration before timeout (in ms)");
     }
 
     private final String zookeeper;
