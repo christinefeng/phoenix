@@ -1,0 +1,72 @@
+From c526ca97d10cd92928715716cb8abc2b66ee1145 Mon Sep 17 00:00:00 2001
+From: Christine Feng <chfeng15@gmail.com>
+Date: Tue, 21 Jan 2020 15:17:16 -0800
+Subject: [PATCH] PHOENIX-5633: Add table name info to scan logging
+
+---
+ bin/log4j.properties                                       | 7 ++++---
+ .../java/org/apache/phoenix/execute/BaseQueryPlan.java     | 4 ++--
+ .../org/apache/phoenix/iterate/BaseResultIterators.java    | 2 +-
+ 3 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/bin/log4j.properties b/bin/log4j.properties
+index 2d007e1f3..ee50312cb 100644
+--- a/bin/log4j.properties
++++ b/bin/log4j.properties
+@@ -20,16 +20,17 @@
+ #
+ 
+ # Define some default values that can be overridden by system properties
+-psql.root.logger=WARN,console
++psql.root.logger=ALL,console
+ psql.log.dir=.
+ psql.log.file=psql.log
+ hadoop.log.dir=.
+ 
+ # Define the root logger to the system property "plsql.root.logger".
+-log4j.rootLogger=${psql.root.logger}
++#log4j.rootLogger=${psql.root.logger}
++log4j.rootLogger=ALL
+ 
+ # Logging Threshold to INFO for queryserver. root logger still at WARN for sqlline clients.
+-log4j.threshold=INFO
++log4j.threshold=ALL
+ 
+ #
+ # Daily Rolling File Appender
+diff --git a/phoenix-core/src/main/java/org/apache/phoenix/execute/BaseQueryPlan.java b/phoenix-core/src/main/java/org/apache/phoenix/execute/BaseQueryPlan.java
+index 3f10ad07a..42cc6f76e 100644
+--- a/phoenix-core/src/main/java/org/apache/phoenix/execute/BaseQueryPlan.java
++++ b/phoenix-core/src/main/java/org/apache/phoenix/execute/BaseQueryPlan.java
+@@ -359,13 +359,13 @@ public abstract class BaseQueryPlan implements QueryPlan {
+         
+         if (LOGGER.isDebugEnabled()) {
+             LOGGER.debug(LogUtil.addCustomAnnotations(
+-                    "Scan ready for iteration: " + scan, connection));
++                    "Scan on table " + context.getCurrentTable().getTable().getName() + " ready for iteration: " + scan, connection));
+         }
+         
+         ResultIterator iterator =  newIterator(scanGrouper, scan, caches);
+         if (LOGGER.isDebugEnabled()) {
+             LOGGER.debug(LogUtil.addCustomAnnotations(
+-                    "Iterator ready: " + iterator, connection));
++                    "Iterator for table " + context.getCurrentTable().getTable().getName() + " ready: " + iterator, connection));
+         }
+ 
+         // wrap the iterator so we start/end tracing as we expect
+diff --git a/phoenix-core/src/main/java/org/apache/phoenix/iterate/BaseResultIterators.java b/phoenix-core/src/main/java/org/apache/phoenix/iterate/BaseResultIterators.java
+index 12a6b3a0a..02e7e6c34 100644
+--- a/phoenix-core/src/main/java/org/apache/phoenix/iterate/BaseResultIterators.java
++++ b/phoenix-core/src/main/java/org/apache/phoenix/iterate/BaseResultIterators.java
+@@ -1238,7 +1238,7 @@ public abstract class BaseResultIterators extends ExplainTable implements Result
+     public List<PeekingResultIterator> getIterators() throws SQLException {
+         if (LOGGER.isDebugEnabled()) {
+             LOGGER.debug(LogUtil.addCustomAnnotations("Getting iterators for " + this,
+-                    ScanUtil.getCustomAnnotations(scan)));
++                    ScanUtil.getCustomAnnotations(scan)) + "on table " + context.getCurrentTable().getTable().getName());
+         }
+         boolean isReverse = ScanUtil.isReversed(scan);
+         boolean isLocalIndex = getTable().getIndexType() == IndexType.LOCAL;
+-- 
+2.17.1
+
