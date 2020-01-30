@@ -46,6 +46,18 @@ public class PherfTest {
     }
 
     @Test
+    public void testValidOptionsWithScenarioFile() {
+        String [] args = {"-drop", "all", "-q", "-m", "-scenarioFile", ".*test_scenario.xml", "-schemaFile", ".*test_schema.sql"};
+        Pherf.main(args);
+    }
+
+    @Test
+    public void testValidOptions() {
+        String [] args = {"-drop", "all", "-q", "-m"};
+        Pherf.main(args);
+    }
+
+    @Test
     public void testDefaultLogPerNRowsArgument() throws Exception {
         String[] args = {"-listFiles"};
         assertEquals(Long.valueOf(PherfConstants.LOG_PER_NROWS),

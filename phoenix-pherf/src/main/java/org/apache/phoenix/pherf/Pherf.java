@@ -260,6 +260,7 @@ public class Pherf {
             }
             
             XMLConfigParser parser = new XMLConfigParser(scenarioFile);
+            LOGGER.info("hello");
 
             // Drop tables with PHERF schema and regex comparison
             if (null != dropPherfTablesRegEx) {
@@ -327,7 +328,10 @@ public class Pherf {
             // Collect any final jobs
             workloadExecutor.get();
 
-        } finally {
+        } catch (Exception e) {
+            LOGGER.info("oopy doopy " + e.getMessage());
+        }
+        finally {
             if (workloadExecutor != null) {
                 LOGGER.info("Run completed. Shutting down thread pool.");
                 workloadExecutor.shutdown();
