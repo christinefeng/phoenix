@@ -47,7 +47,8 @@ public class OrExpressionTest {
     }
 
     private OrExpression createOr(Boolean x, Boolean y) {
-        return createOr(LiteralExpression.newConstant(x), LiteralExpression.newConstant(y));
+        return createOr(new LiteralExpression.Builder().setValue(x).buildValueAndDeterminism(false),
+                new LiteralExpression.Builder().setValue(y).buildValueAndDeterminism(false));
     }
 
     private void testImmediateSingle(Boolean expected, Boolean lhs, Boolean rhs) {

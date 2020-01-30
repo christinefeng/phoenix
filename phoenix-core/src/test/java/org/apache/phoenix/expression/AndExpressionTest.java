@@ -47,8 +47,10 @@ public class AndExpressionTest {
     }
 
     private AndExpression createAnd(Boolean x, Boolean y) {
-        return createAnd(LiteralExpression.newConstant(x), LiteralExpression.newConstant(y));
+        return createAnd(new LiteralExpression.Builder().setValue(x).buildValueAndDeterminism(false),
+                new LiteralExpression.Builder().setValue(y).buildValueAndDeterminism(false));
     }
+
 
     private void testImmediateSingle(Boolean expected, Boolean lhs, Boolean rhs) {
         AndExpression and = createAnd(lhs, rhs);

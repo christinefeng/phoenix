@@ -236,7 +236,7 @@ public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
     
     /**
      * For client-side to append serialized IndexMaintainers of keyValueIndexes
-     * @param dataTable data table
+     * @param table data table
      * @param indexMetaDataPtr bytes pointer to hold returned serialized value
      * @param keyValueIndexes indexes to serialize
      */
@@ -1036,7 +1036,7 @@ public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
                     byte[] value = ptr.copyBytesIfNecessary();
                     if (value != null) {
                         int indexArrayPos = encodingScheme.decode(indexColRef.getQualifier())-QueryConstants.ENCODED_CQ_COUNTER_INITIAL_VALUE+1;
-                        colValues[indexArrayPos] = new LiteralExpression(value);
+                        colValues[indexArrayPos] = new LiteralExpression.Builder().setByteValue(value).buildValueAndDeterminism(true);
                     }
                 }
                 

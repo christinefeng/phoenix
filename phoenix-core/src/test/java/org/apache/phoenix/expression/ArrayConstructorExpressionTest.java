@@ -34,10 +34,10 @@ import com.google.common.collect.Lists;
 
 public class ArrayConstructorExpressionTest {
     
-    protected static final LiteralExpression CONSTANT_EXPRESSION = LiteralExpression.newConstant(QueryConstants.EMPTY_COLUMN_VALUE_BYTES);
+    protected static final LiteralExpression CONSTANT_EXPRESSION = new LiteralExpression.Builder().setValue(QueryConstants.EMPTY_COLUMN_VALUE_BYTES).buildValueAndDeterminism(false);
     protected static final byte[] BYTE_ARRAY1 = new byte[]{1,2,3,4,5};
     protected static final byte[] BYTE_ARRAY2 = new byte[]{6,7,8};
-    protected Expression FALSE_EVAL_EXPRESSION = new DelegateExpression(LiteralExpression.newConstant(null)) {
+    protected Expression FALSE_EVAL_EXPRESSION = new DelegateExpression(new LiteralExpression.Builder().buildValueAndDeterminism(false)) {
         @Override
         public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
             return false;
@@ -47,11 +47,11 @@ public class ArrayConstructorExpressionTest {
     @Test
     public void testLeadingNulls() throws Exception {
         List<Expression> children = Lists.newArrayListWithExpectedSize(4);
-        LiteralExpression nullExpression = LiteralExpression.newConstant(null);
+        LiteralExpression nullExpression = new LiteralExpression.Builder().buildValueAndDeterminism(false);
         children.add(nullExpression);
         children.add(nullExpression);
-        children.add(LiteralExpression.newConstant(BYTE_ARRAY1, PVarbinary.INSTANCE));
-        children.add(LiteralExpression.newConstant(BYTE_ARRAY2, PVarbinary.INSTANCE));
+        children.add(new LiteralExpression.Builder().setValue(BYTE_ARRAY1).setDataType(PVarbinary.INSTANCE).build());
+        children.add(new LiteralExpression.Builder().setValue(BYTE_ARRAY2).setDataType(PVarbinary.INSTANCE).build());
         ArrayConstructorExpression arrayConstructorExpression = new ArrayConstructorExpression(children, PVarbinary.INSTANCE, false);
         ImmutableBytesPtr ptr = new ImmutableBytesPtr();
         

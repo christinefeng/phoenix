@@ -49,9 +49,9 @@ import com.google.common.collect.Lists;
  * Unit tests for {@link PowerFunction}
  */
 public class PowerFunctionTest {
-    private static final Expression ONE_POINT_FIVE = LiteralExpression.newConstant(1.5);
-    private static final Expression TWO = LiteralExpression.newConstant(2);
-    private static final Expression THREE = LiteralExpression.newConstant(3);
+    private static final Expression ONE_POINT_FIVE = new LiteralExpression.Builder().setValue(1.5).buildValueAndDeterminism(false);
+    private static final Expression TWO = new LiteralExpression.Builder().setValue(2).buildValueAndDeterminism(false);
+    private static final Expression THREE = new LiteralExpression.Builder().setValue(3).buildValueAndDeterminism(false);
 
 
     private static boolean testExpression(LiteralExpression literal, LiteralExpression literal2,
@@ -97,13 +97,13 @@ public class PowerFunctionTest {
     private static void test(Number value, PNumericType dataType, double exptFor15,
             double exptFor2, double exptFor3) throws SQLException {
         LiteralExpression literal, literal2, literal3;
-        literal = LiteralExpression.newConstant(value, dataType, SortOrder.ASC);
-        literal2 = LiteralExpression.newConstant(value, dataType, SortOrder.ASC);
-        literal3 = LiteralExpression.newConstant(value, dataType, SortOrder.ASC);
+        literal = new LiteralExpression.Builder().setValue(value).setDataType(dataType).setSortOrder(SortOrder.ASC).build();
+        literal2 = new LiteralExpression.Builder().setValue(value).setDataType(dataType).setSortOrder(SortOrder.ASC).build();
+        literal3 = new LiteralExpression.Builder().setValue(value).setDataType(dataType).setSortOrder(SortOrder.ASC).build();
         boolean ret1 = testExpression(literal, literal2, literal3, exptFor15, exptFor2, exptFor3);
-        literal = LiteralExpression.newConstant(value, dataType, SortOrder.DESC);
-        literal2 = LiteralExpression.newConstant(value, dataType, SortOrder.DESC);
-        literal3 = LiteralExpression.newConstant(value, dataType, SortOrder.DESC);
+        literal = new LiteralExpression.Builder().setValue(value).setDataType(dataType).setSortOrder(SortOrder.DESC).build();
+        literal2 = new LiteralExpression.Builder().setValue(value).setDataType(dataType).setSortOrder(SortOrder.DESC).build();
+        literal3 = new LiteralExpression.Builder().setValue(value).setDataType(dataType).setSortOrder(SortOrder.DESC).build();
         boolean ret2 = testExpression(literal, literal2, literal3, exptFor15, exptFor2, exptFor3);
         assertEquals(ret1, ret2);
     }

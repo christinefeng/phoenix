@@ -200,7 +200,7 @@ public abstract class LikeExpression extends BaseCompoundExpression {
     private static final LiteralExpression[] LIKE_TYPE_LITERAL = new LiteralExpression[LikeType.values().length];
     static {
         for (LikeType likeType : LikeType.values()) {
-            LIKE_TYPE_LITERAL[likeType.ordinal()] = LiteralExpression.newConstant(likeType.name());
+            LIKE_TYPE_LITERAL[likeType.ordinal()] = new LiteralExpression.Builder().setValue(likeType.name()).buildValueAndDeterminism(false);
         }
     }
     private AbstractBasePattern pattern;

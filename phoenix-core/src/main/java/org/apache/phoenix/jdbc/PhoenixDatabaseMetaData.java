@@ -23,7 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -743,8 +742,10 @@ public class PhoenixDatabaseMetaData implements DatabaseMetaData {
                     0, true);
     
     private boolean match(String str, String pattern) throws SQLException {
-        LiteralExpression strExpr = LiteralExpression.newConstant(str, PVarchar.INSTANCE, SortOrder.ASC);
-        LiteralExpression patternExpr = LiteralExpression.newConstant(pattern, PVarchar.INSTANCE, SortOrder.ASC);
+        LiteralExpression strExpr = new LiteralExpression.Builder().setValue(str).setDataType(PVarchar.INSTANCE)
+                .setSortOrder(SortOrder.ASC).build();
+        LiteralExpression patternExpr = new LiteralExpression.Builder().setValue(pattern).setDataType(PVarchar.INSTANCE)
+                .setSortOrder(SortOrder.ASC).build();
         List<Expression> children = Arrays.<Expression>asList(strExpr, patternExpr);
         LikeExpression likeExpr = StringBasedLikeExpression.create(children, LikeType.CASE_SENSITIVE);
         ImmutableBytesWritable ptr = new ImmutableBytesWritable();

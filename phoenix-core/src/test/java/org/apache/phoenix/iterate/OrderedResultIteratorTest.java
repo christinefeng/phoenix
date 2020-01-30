@@ -56,7 +56,7 @@ public class OrderedResultIteratorTest {
     public void testSpoolingBackwardCompatibility() {
         RegionScanner s = Mockito.mock(RegionScanner.class);
         Scan scan = new Scan();
-        Expression exp = LiteralExpression.newConstant(Boolean.TRUE);
+        Expression exp = new LiteralExpression.Builder().setValue(Boolean.TRUE).buildValueAndDeterminism(false);
         OrderByExpression ex = OrderByExpression.createByCheckIfOrderByReverse(exp, false, false, false);
         ScanRegionObserver.serializeIntoScan(scan, 0, Arrays.asList(ex), 100);
         // Check 5.1.0 & Check > 5.1.0

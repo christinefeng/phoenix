@@ -103,7 +103,8 @@ import com.google.common.collect.Lists;
  * @since 0.1
  */
 public class ProjectionCompiler {
-    private static final Expression NULL_EXPRESSION = LiteralExpression.newConstant(null);
+    private static Expression NULL_EXPRESSION = new LiteralExpression.Builder().buildValueAndDeterminism(false);
+
     private ProjectionCompiler() {
     }
     
@@ -170,7 +171,8 @@ public class ProjectionCompiler {
             expression = coerceIfNecessary(i-posOffset+projectedOffset, targetColumns, expression);
             ImmutableBytesWritable ptr = context.getTempPtr();
             if (IndexUtil.getViewConstantValue(column, ptr)) {
-                expression = LiteralExpression.newConstant(column.getDataType().toObject(ptr), expression.getDataType());
+                expression = new LiteralExpression.Builder().setValue(column.getDataType().toObject(ptr))
+                        .setDataType(expression.getDataType()).build();
             }
             projectedExpressions.add(expression);
             boolean isCaseSensitive = !SchemaUtil.normalizeIdentifier(colName).equals(colName);

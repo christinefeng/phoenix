@@ -26,14 +26,17 @@ import org.apache.phoenix.compile.OrderPreservingTracker.Info;
 import org.apache.phoenix.compile.GroupByCompiler.GroupBy;
 import org.apache.phoenix.compile.OrderByCompiler.OrderBy;
 import org.apache.phoenix.expression.AndExpression;
+import org.apache.phoenix.expression.CoerceExpression;
 import org.apache.phoenix.expression.ColumnExpression;
 import org.apache.phoenix.expression.ComparisonExpression;
 import org.apache.phoenix.expression.Determinism;
 import org.apache.phoenix.expression.Expression;
+import org.apache.phoenix.expression.InListExpression;
 import org.apache.phoenix.expression.IsNullExpression;
 import org.apache.phoenix.expression.LiteralExpression;
 import org.apache.phoenix.expression.OrderByExpression;
 import org.apache.phoenix.expression.RowKeyColumnExpression;
+import org.apache.phoenix.expression.RowValueConstructorExpression;
 import org.apache.phoenix.expression.visitor.StatelessTraverseAllExpressionVisitor;
 import org.apache.phoenix.expression.visitor.StatelessTraverseNoExpressionVisitor;
 import org.apache.phoenix.jdbc.PhoenixConnection;
@@ -72,7 +75,8 @@ public class ExpressionUtil {
         if (expression.evaluate(null, ptr) && ptr.getLength() != 0) {
             value = type.toObject(ptr.get(), ptr.getOffset(), ptr.getLength(), type, expression.getSortOrder(), expression.getMaxLength(), expression.getScale());
         }
-        return LiteralExpression.newConstant(value, type, expression.getDeterminism());
+        return new LiteralExpression.Builder().setValue(value).setDataType(type)
+                .setDeterminism(expression.getDeterminism()).build();
     }
 
     public static boolean isNull(Expression expression, ImmutableBytesWritable ptr) {
@@ -80,7 +84,8 @@ public class ExpressionUtil {
     }
 
     public static LiteralExpression getNullExpression(Expression expression) throws SQLException {
-        return LiteralExpression.newConstant(null, expression.getDataType(), expression.getDeterminism());
+        return new LiteralExpression.Builder().setDataType(expression.getDataType())
+                .setDeterminism(expression.getDeterminism()).build();
     }
     
     public static boolean evaluatesToTrue(Expression expression) {
