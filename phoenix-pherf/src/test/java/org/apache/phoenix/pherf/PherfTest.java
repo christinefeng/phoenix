@@ -37,6 +37,13 @@ public class PherfTest {
     }
 
     @Test
+    public void testPherf() {
+        //python2 ~/phoenix/bin/pherf-standalone.py -schemaFile .*user_defined_schema.sql -scenarioFile .*test_scenario.xml -z localhost:51677
+        String[] args = {"-schemaFile", ".*user_defined_schema.sql", "-scenarioFile", ".*user_defined_scenario.xml", "-z", "localhost:51038"};
+        Pherf.main(args);
+    }
+
+    @Test
     public void testUnknownOption() {
         String[] args = {"-drop", "all", "-q", "-m","-bsOption"};
 

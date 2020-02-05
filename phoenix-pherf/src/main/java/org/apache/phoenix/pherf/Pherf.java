@@ -118,7 +118,7 @@ public class Pherf {
     private final CompareType compareType;
     private final boolean thinDriver;
     private final String queryServerUrl;
-    private final int timeoutDuration;
+//    private final int timeoutDuration;
 
     @VisibleForTesting
     WorkloadExecutor workloadExecutor;
@@ -146,7 +146,8 @@ public class Pherf {
         properties.setProperty("pherf.default.monitorFrequency", monitorFrequency);
         LOGGER.debug("Using Monitor: " + monitor);
         LOGGER.debug("Monitor Frequency Ms:" + monitorFrequency);
-        timeoutDuration = Integer.parseInt(command.getOptionValue("timeout", null));
+//        // 0 is default "null" value for timeout
+//        timeoutDuration = command.getOptionValue("timeout", null) == null ? 0 : Integer.parseInt(command.getOptionValue("timeout", null));
         properties.setProperty(PherfConstants.LOG_PER_NROWS_NAME, getLogPerNRow(command));
 
         preLoadData = command.hasOption("l");
@@ -254,14 +255,14 @@ public class Pherf {
                 }
                 return;
             }
-            
+
             // Compare results and exit  
             if (null != compareResults) {
                 LOGGER.info("\nStarting to compare results and exiting for " + compareResults);
                 new GoogleChartGenerator(compareResults, compareType).readAndRender();
                 return;
             }
-            
+
             XMLConfigParser parser = new XMLConfigParser(scenarioFile);
 
             // Drop tables with PHERF schema and regex comparison
@@ -329,7 +330,8 @@ public class Pherf {
 
             // Collect any final jobs
             workloadExecutor.get();
-
+        } catch (Exception e) {
+            LOGGER.info("??? " + e.getMessage()) ;
         } finally {
             if (workloadExecutor != null) {
                 LOGGER.info("Run completed. Shutting down thread pool.");
