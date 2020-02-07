@@ -43,6 +43,7 @@ public class Scenario {
     private String tenantId;
     private List<Ddl> preScenarioDdls;
     private List<Ddl> postScenarioDdls;
+    private int timeoutDuration;
     
    
     public Scenario() {
@@ -97,6 +98,14 @@ public class Scenario {
 
     public void setRowCount(int rowCount) {
         this.rowCount = rowCount;
+    }
+
+    public int getTimeoutDuration() {
+        return timeoutDuration;
+    }
+
+    public void setTimeoutDuration(int timeoutDuration) {
+        this.timeoutDuration = timeoutDuration;
     }
     
     /**
@@ -201,6 +210,7 @@ public class Scenario {
         stringBuilder.append("Table Name:" + tableName);
         stringBuilder.append("Row Count:" + rowCount);
         stringBuilder.append("Data Override:" + dataOverride);
+        stringBuilder.append("Timeout Duration:" + timeoutDuration);
         for (QuerySet query : querySet) {
             stringBuilder.append(query + ";");
         }

@@ -108,7 +108,7 @@
         </column>
     </datamapping>
     <scenarios>
-        <scenario tableName="PHERF.USER_DEFINED_TEST" rowCount="50" name="myscenario">
+        <scenario tableName="PHERF.USER_DEFINED_TEST" timeoutDuration="10000" rowCount="50" name="myscenario">
             <!-- Scenario level rule overrides will be unsupported in V1.
                     You can use the general datamappings in the mean time-->
             <dataOverride>

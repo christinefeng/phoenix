@@ -39,7 +39,7 @@ public class PherfTest {
     @Test
     public void testPherf() {
         //python2 ~/phoenix/bin/pherf-standalone.py -schemaFile .*user_defined_schema.sql -scenarioFile .*test_scenario.xml -z localhost:51677
-        String[] args = {"-schemaFile", ".*user_defined_schema.sql", "-scenarioFile", ".*user_defined_scenario.xml", "-z", "localhost:51038"};
+        String[] args = {"-schemaFile", ".*user_defined_schema.sql", "-scenarioFile", ".*user_defined_scenario.xml", "-z", "localhost:50867", "-l", "-q"};
         Pherf.main(args);
     }
 
