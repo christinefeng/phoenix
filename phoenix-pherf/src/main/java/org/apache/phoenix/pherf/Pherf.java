@@ -33,6 +33,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.phoenix.pherf.PherfConstants.CompareType;
 import org.apache.phoenix.pherf.PherfConstants.GeneratePhoenixStats;
+import org.apache.phoenix.pherf.configuration.DataModel;
 import org.apache.phoenix.pherf.configuration.XMLConfigParser;
 import org.apache.phoenix.pherf.jmx.MonitorManager;
 import org.apache.phoenix.pherf.result.ResultUtil;
@@ -264,6 +265,11 @@ public class Pherf {
             }
 
             XMLConfigParser parser = new XMLConfigParser(scenarioFile);
+
+            LOGGER.info("Displaying info about parsed data models...\n");
+            for (DataModel d : parser.getDataModels()) {
+                LOGGER.info(d.toString());
+            }
 
             // Drop tables with PHERF schema and regex comparison
             if (null != dropPherfTablesRegEx) {
