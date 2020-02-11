@@ -20,6 +20,7 @@ package org.apache.phoenix.pherf.workload;
 
 import com.google.common.annotations.VisibleForTesting;
 import jline.internal.TestAccessible;
+import okio.Timeout;
 import org.apache.phoenix.pherf.PherfConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,18 @@ public class WorkloadExecutor {
             Future future = jobs.get(workload);
             future.get();
             jobs.remove(workload);
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.error("", e);
+        }
+    }
+// this doesn't take care of per-table timeout duration
+    public void get(Workload workload, long timeout) {
+        try {
+            Future future = jobs.get(workload);
+            future.get(timeout, TimeUnit.SECONDS);
+            jobs.remove(workload);
+        } catch (TimeoutException e) {
+            LOGGER.error("oops out of time");
         } catch (InterruptedException | ExecutionException e) {
             LOGGER.error("", e);
         }

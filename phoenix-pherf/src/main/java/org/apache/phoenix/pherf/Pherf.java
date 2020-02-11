@@ -96,7 +96,6 @@ public class Pherf {
 		    options.addOption("t", "thin", false, "Use the Phoenix Thin Driver");
 		    options.addOption("s", "server", true, "The URL for the Phoenix QueryServer");
 		    options.addOption("b", "batchApi", false, "Use JDBC Batch API for writes");
-		    options.addOption("timeout", true, "Max query duration before timeout (in ms)");
     }
 
     private final String zookeeper;
@@ -119,7 +118,6 @@ public class Pherf {
     private final CompareType compareType;
     private final boolean thinDriver;
     private final String queryServerUrl;
-//    private final int timeoutDuration;
 
     @VisibleForTesting
     WorkloadExecutor workloadExecutor;
@@ -147,8 +145,6 @@ public class Pherf {
         properties.setProperty("pherf.default.monitorFrequency", monitorFrequency);
         LOGGER.debug("Using Monitor: " + monitor);
         LOGGER.debug("Monitor Frequency Ms:" + monitorFrequency);
-//        // 0 is default "null" value for timeout
-//        timeoutDuration = command.getOptionValue("timeout", null) == null ? 0 : Integer.parseInt(command.getOptionValue("timeout", null));
         properties.setProperty(PherfConstants.LOG_PER_NROWS_NAME, getLogPerNRow(command));
 
         preLoadData = command.hasOption("l");
@@ -337,7 +333,7 @@ public class Pherf {
             // Collect any final jobs
             workloadExecutor.get();
         } catch (Exception e) {
-            LOGGER.info("??? " + e.getMessage()) ;
+            LOGGER.error(e.getMessage());
         } finally {
             if (workloadExecutor != null) {
                 LOGGER.info("Run completed. Shutting down thread pool.");

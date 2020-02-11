@@ -100,6 +100,7 @@ public class Scenario {
         this.rowCount = rowCount;
     }
 
+    @XmlAttribute()
     public int getTimeoutDuration() {
         return timeoutDuration;
     }
