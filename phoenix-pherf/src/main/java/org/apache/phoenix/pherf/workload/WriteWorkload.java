@@ -239,10 +239,6 @@ public class WriteWorkload implements Workload {
             sumDuration += writeInfo.getDuration();
             LOGGER.info("Executor (" + this.hashCode() + ") writes complete with row count ("
                     + writeInfo.getRowCount() + ") in Ms (" + writeInfo.getDuration() + ")");
-            if (scenario.getTimeoutDuration() != 0 && sumDuration > 10) {
-                LOGGER.info("Timeout duration exceeded! Quitting now...");
-                break;
-            }
         }
         long testDuration = System.currentTimeMillis() - start;
         LOGGER.info("Writes completed with total row count (" + sumRows

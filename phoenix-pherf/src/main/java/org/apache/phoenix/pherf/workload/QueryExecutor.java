@@ -18,6 +18,7 @@
 
 package org.apache.phoenix.pherf.workload;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.phoenix.pherf.configuration.DataModel;
@@ -153,7 +154,8 @@ public class QueryExecutor implements Workload {
                 Configuration conf = HBaseConfiguration.create();
                 Map<String, String> phoenixProperty = conf.getValByRegex("phoenix");
                 try {
-
+                    StopWatch sw = new StopWatch();
+                    sw.start();
                     for (Scenario scenario : scenarios) {
                         ScenarioResult scenarioResult = new ScenarioResult(scenario);
                         scenarioResult.setPhoenixProperties(phoenixProperty);
@@ -165,9 +167,9 @@ public class QueryExecutor implements Workload {
 
                             util.executeQuerySetDdls(querySet);
                             if (querySet.getExecutionType() == ExecutionType.SERIAL) {
-                                executeQuerySetSerial(dataModelResult, querySet, querySetResult, scenario);
+                                executeQuerySetSerial(dataModelResult, querySet, querySetResult, scenario, sw);
                             } else {
-                                executeQuerySetParallel(dataModelResult, querySet, querySetResult, scenario);
+                                executeQuerySetParallel(dataModelResult, querySet, querySetResult, scenario, sw);
                             }
                         }
                         resultManager.write(dataModelResult, ruleApplier);
@@ -193,7 +195,8 @@ public class QueryExecutor implements Workload {
      * @throws InterruptedException
      */
     protected void executeQuerySetSerial(DataModelResult dataModelResult, QuerySet querySet,
-            QuerySetResult querySetResult, Scenario scenario) throws ExecutionException, InterruptedException {
+            QuerySetResult querySetResult, Scenario scenario, StopWatch sw) throws ExecutionException, InterruptedException {
+        boolean timeoutExceeded = false; //flag to determine whether all subsequent threads should simply be cancelled
         for (Query query : querySet.getQuery()) {
             QueryResult queryResult = new QueryResult(query);
             querySetResult.getQueryResults().add(queryResult);
@@ -208,11 +211,23 @@ public class QueryExecutor implements Workload {
                             thread =
                             executeRunner((i + 1) + "," + cr, dataModelResult, queryResult,
                                     querySetResult, scenario);
+                    LOGGER.info("adding thread");
                     threads.add(workloadExecutor.getPool().submit(thread));
                 }
 
                 for (Future thread : threads) {
-                    thread.get();
+                    LOGGER.info("Executing query...");
+                    if (!timeoutExceeded) {
+                        LOGGER.info("Timeout hasn't been exceeded yet...");
+                        thread.get();
+                        if (sw.getTime() >= scenario.getTimeoutDuration()) {
+                            timeoutExceeded = true;
+                            LOGGER.info("Execution exceeded timeout at " + sw.getTime() + " ms; remaining threads will be cancelled");
+                            sw.reset();
+                        }
+                    } else {
+                        thread.cancel(true);
+                    }
                 }
             }
         }
@@ -227,7 +242,7 @@ public class QueryExecutor implements Workload {
      * @throws InterruptedException
      */
     protected void executeQuerySetParallel(DataModelResult dataModelResult, QuerySet querySet,
-            QuerySetResult querySetResult, Scenario scenario) throws ExecutionException, InterruptedException {
+            QuerySetResult querySetResult, Scenario scenario, StopWatch sw) throws ExecutionException, InterruptedException {
         for (int cr = querySet.getMinConcurrency(); cr <= querySet.getMaxConcurrency(); cr++) {
             List<Future> threads = new ArrayList<>();
             for (int i = 0; i < cr; i++) {
