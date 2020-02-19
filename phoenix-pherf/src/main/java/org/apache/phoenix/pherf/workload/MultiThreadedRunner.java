@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.phoenix.pherf.result.DataModelResult;
 import org.apache.phoenix.pherf.result.ResultManager;
 import org.apache.phoenix.pherf.result.RunTime;
@@ -54,7 +55,7 @@ class MultiThreadedRunner implements Callable<Void> {
     private final Scenario scenario;
     private final WorkloadExecutor workloadExecutor;
     private final XMLConfigParser parser;
-    
+
 
     /**
      * MultiThreadedRunner
@@ -87,6 +88,8 @@ class MultiThreadedRunner implements Callable<Void> {
      */
     @Override
     public Void call() throws Exception {
+        StopWatch sw = new StopWatch();
+        sw.start();
         LOGGER.info("\n\nThread Starting " + threadName + " ; " + query.getStatement() + " for "
                 + numberOfExecutions + "times\n\n");
         Long start = System.currentTimeMillis();
@@ -98,6 +101,12 @@ class MultiThreadedRunner implements Callable<Void> {
                     resultManager.write(dataModelResult, ruleApplier);
                     lastResultWritten = System.currentTimeMillis();
                 }
+                if (sw.getTime() >= this.scenario.getTimeoutDuration() && this.scenario.getTimeoutDuration() != 0) {
+                    sw.stop();
+                    LOGGER.info("\n\nThread " + threadName + " exiting because stopwatch reached " + sw.getTime() + " ms.\n\n");
+                    resultManager.flush();
+                    return null;
+                }
             }
         }
 
@@ -106,7 +115,7 @@ class MultiThreadedRunner implements Callable<Void> {
             resultManager.flush();
         }
 
-        LOGGER.info("\n\nThread exiting." + threadName + "\n\n");
+        LOGGER.info("\n\nThread " + threadName + " exiting after " + (System.currentTimeMillis() - start) + " ms.\n\n");
         return null;
     }
 
@@ -151,7 +160,7 @@ class MultiThreadedRunner implements Callable<Void> {
                     if (null != query.getExpectedAggregateRowCount()) {
                         if (rs.getLong(1) != query.getExpectedAggregateRowCount())
                             throw new RuntimeException(
-                                    "Aggregate count " + rs.getLong(1) + " does not match expected "
+                                    "Statement is " + statement.toString() + "\nAggregate count " + rs.getLong(1) + " does not match expected "
                                             + query.getExpectedAggregateRowCount());
                     }
 
