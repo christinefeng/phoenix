@@ -103,7 +103,7 @@ class MultiThreadedRunner implements Callable<Void> {
                 }
                 if (sw.getTime() >= this.scenario.getTimeoutDuration() && this.scenario.getTimeoutDuration() != 0) {
                     sw.stop();
-                    LOGGER.info("\n\nThread " + threadName + " exiting because stopwatch reached " + sw.getTime() + " ms.\n\n");
+                    LOGGER.info("\n\nTimeout (" + scenario.getTimeoutDuration() + ") exceeded! Thread " + threadName + " exiting because stopwatch reached " + sw.getTime() + " ms.\n\n");
                     resultManager.flush();
                     return null;
                 }
