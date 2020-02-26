@@ -108,7 +108,7 @@
         </column>
     </datamapping>
     <scenarios>
-        <scenario tableName="PHERF.USER_DEFINED_TEST" rowCount="50" name="myscenario" timeoutDuration="500">
+        <scenario tableName="PHERF.USER_DEFINED_TEST" rowCount="50" name="myscenario">
             <!-- Scenario level rule overrides will be unsupported in V1.
                     You can use the general datamappings in the mean time-->
             <dataOverride>
@@ -126,9 +126,10 @@
             <querySet concurrency="1-3" executionType="SERIAL" executionDurationInMs="1000" numberOfExecutions="10000">
                 <!-- queryGroup is a way to organize queries across tables or scenario files.
                     The value will be dumped to results. This gives a value to group by on reporting to compare queries -->
-                <query id="q1" expectedAggregateRowCount="50"
+                <query id="q1" expectedAggregateRowCount="50" timeoutDuration="100"
                        statement="select count(*) from PHERF.USER_DEFINED_TEST"/>
-                <query id="q2" expectedAggregateRowCount="50" statement="SELECT COUNT(*) FROM PHERF.USER_DEFINED_TEST"/>
+                <query id="q2" expectedAggregateRowCount="50" timeoutDuration="10"
+                       statement="SELECT COUNT(*) FROM PHERF.USER_DEFINED_TEST"/>
             </querySet>
         </scenario>
     </scenarios>

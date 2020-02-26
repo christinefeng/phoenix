@@ -29,7 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.phoenix.pherf.PherfConstants;
 import org.apache.phoenix.pherf.PherfConstants.GeneratePhoenixStats;

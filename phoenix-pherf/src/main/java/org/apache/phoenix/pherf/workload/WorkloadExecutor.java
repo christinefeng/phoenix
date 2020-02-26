@@ -91,18 +91,6 @@ public class WorkloadExecutor {
             LOGGER.error("", e);
         }
     }
-// this doesn't take care of per-table timeout duration
-    public void get(Workload workload, long timeout) {
-        try {
-            Future future = jobs.get(workload);
-            future.get(timeout, TimeUnit.SECONDS);
-            jobs.remove(workload);
-        } catch (TimeoutException e) {
-            LOGGER.error("oops out of time");
-        } catch (InterruptedException | ExecutionException e) {
-            LOGGER.error("", e);
-        }
-    }
 
     /**
      * Complete all workloads in the list.

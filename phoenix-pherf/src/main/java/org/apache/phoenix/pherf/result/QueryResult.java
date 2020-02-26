@@ -54,6 +54,7 @@ public class QueryResult extends Query {
         this.setDdl(query.getDdl());
         this.setQueryGroup(query.getQueryGroup());
         this.setId(query.getId());
+        this.setTimeoutDuration(query.getTimeoutDuration());
     }
 
     public Date getStartTime() {

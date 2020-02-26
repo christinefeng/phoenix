@@ -88,8 +88,8 @@ class MultiThreadedRunner implements Callable<Void> {
      */
     @Override
     public Void call() throws Exception {
-        StopWatch sw = new StopWatch();
-        sw.start();
+//        StopWatch sw = new StopWatch();
+//        sw.start();
         LOGGER.info("\n\nThread Starting " + threadName + " ; " + query.getStatement() + " for "
                 + numberOfExecutions + "times\n\n");
         Long start = System.currentTimeMillis();
@@ -101,12 +101,12 @@ class MultiThreadedRunner implements Callable<Void> {
                     resultManager.write(dataModelResult, ruleApplier);
                     lastResultWritten = System.currentTimeMillis();
                 }
-                if (sw.getTime() >= this.scenario.getTimeoutDuration() && this.scenario.getTimeoutDuration() != 0) {
-                    sw.stop();
-                    LOGGER.info("\n\nTimeout (" + scenario.getTimeoutDuration() + ") exceeded! Thread " + threadName + " exiting because stopwatch reached " + sw.getTime() + " ms.\n\n");
-                    resultManager.flush();
-                    return null;
-                }
+//                if (sw.getTime() >= this.scenario.getTimeoutDuration() && this.scenario.getTimeoutDuration() != 0) {
+//                    sw.stop();
+//                    LOGGER.info("\n\nTimeout (" + scenario.getTimeoutDuration() + ") exceeded! Thread " + threadName + " exiting because stopwatch reached " + sw.getTime() + " ms.\n\n");
+//                    resultManager.flush();
+//                    return null;
+//                }
             }
         }
 
@@ -146,7 +146,7 @@ class MultiThreadedRunner implements Callable<Void> {
             conn.setAutoCommit(true);
             final String statementString = query.getDynamicStatement(ruleApplier, scenario);
             statement = conn.prepareStatement(statementString);
-            LOGGER.info("Executing: " + statementString);
+            LOGGER.info("whooo! Executing: " + statementString);
             
             if (scenario.getWriteParams() != null) {
             	Workload writes = new WriteWorkload(PhoenixUtil.create(), parser, scenario, GeneratePhoenixStats.NO);
