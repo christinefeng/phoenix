@@ -204,25 +204,18 @@ public class QueryExecutor implements Workload {
 
                 for (int i = 0; i < cr; i++) {
 
-                    Callable
-                            thread =
-                            executeRunner((i + 1) + "," + cr, dataModelResult, queryResult,
-                                    querySetResult, scenario);
-                    threads.add(workloadExecutor.getPool().submit(thread));
+                    for (int q = 0; i < querySet.getNumberOfExecutions(); i++) {
+                        Callable
+                                thread =
+                                executeRunner((i + 1) + "," + cr, dataModelResult, queryResult,
+                                        querySetResult, scenario); //names need to be unique? then we'll have to change it
+                        threads.add(workloadExecutor.getPool().submit(thread));
+                    }
+
                 }
 
                 for (Future thread : threads) {
-//                    if (!timeoutExceeded) {
-//                        LOGGER.info("Timeout hasn't been exceeded yet...");
                         thread.get();
-//                        if (sw.getTime() >= scenario.getTimeoutDuration()) {
-//                            timeoutExceeded = true;
-//                            LOGGER.info("Execution exceeded timeout at " + sw.getTime() + " ms; remaining threads will be cancelled");
-//                            sw.reset();
-//                        }
-//                    } else {
-//                        thread.cancel(true);
-//                    }
                 }
             }
         }
@@ -280,8 +273,8 @@ public class QueryExecutor implements Workload {
         if (workloadExecutor.isPerformance()) {
             thread =
                     new MultiThreadedRunner(threadTime.getThreadName(), queryResult,
-                            dataModelResult, threadTime, querySet.getNumberOfExecutions(),
-                            querySet.getExecutionDurationInMs(), writeRuntimeResults, ruleApplier, scenario, workloadExecutor, parser);
+                            dataModelResult, threadTime, 1,
+                            queryResult.getTimeoutDuration(), writeRuntimeResults, ruleApplier, scenario, workloadExecutor, parser); //queryresult vs query??
         } else {
             thread =
                     new MultithreadedDiffer(threadTime.getThreadName(), queryResult, threadTime,

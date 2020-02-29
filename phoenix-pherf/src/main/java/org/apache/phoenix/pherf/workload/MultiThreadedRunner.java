@@ -88,25 +88,17 @@ class MultiThreadedRunner implements Callable<Void> {
      */
     @Override
     public Void call() throws Exception {
-//        StopWatch sw = new StopWatch();
-//        sw.start();
         LOGGER.info("\n\nThread Starting " + threadName + " ; " + query.getStatement() + " for "
                 + numberOfExecutions + "times\n\n");
         Long start = System.currentTimeMillis();
         for (long i = numberOfExecutions; (i > 0 && ((System.currentTimeMillis() - start)
-                < executionDurationInMs)); i--) {
+                < executionDurationInMs)); i--) { //wont check until reloop for time condition...
             synchronized (workloadExecutor) {
                 timedQuery();
                 if ((System.currentTimeMillis() - lastResultWritten) > 1000) {
                     resultManager.write(dataModelResult, ruleApplier);
                     lastResultWritten = System.currentTimeMillis();
                 }
-//                if (sw.getTime() >= this.scenario.getTimeoutDuration() && this.scenario.getTimeoutDuration() != 0) {
-//                    sw.stop();
-//                    LOGGER.info("\n\nTimeout (" + scenario.getTimeoutDuration() + ") exceeded! Thread " + threadName + " exiting because stopwatch reached " + sw.getTime() + " ms.\n\n");
-//                    resultManager.flush();
-//                    return null;
-//                }
             }
         }
 
@@ -146,8 +138,7 @@ class MultiThreadedRunner implements Callable<Void> {
             conn.setAutoCommit(true);
             final String statementString = query.getDynamicStatement(ruleApplier, scenario);
             statement = conn.prepareStatement(statementString);
-            LOGGER.info("whooo! Executing: " + statementString);
-            
+
             if (scenario.getWriteParams() != null) {
             	Workload writes = new WriteWorkload(PhoenixUtil.create(), parser, scenario, GeneratePhoenixStats.NO);
             	workloadExecutor.add(writes);
