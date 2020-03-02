@@ -177,4 +177,12 @@ class MultiThreadedRunner implements Callable<Void> {
             if (conn != null) conn.close();
         }
     }
+
+    public int getQueryTimeoutDuration() {
+        return this.query.getTimeoutDuration();
+    }
+
+    public String getQueryID() {
+        return this.query.getId();
+    }
 }
