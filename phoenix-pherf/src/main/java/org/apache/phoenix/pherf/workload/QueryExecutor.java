@@ -205,7 +205,7 @@ public class QueryExecutor implements Workload {
 
             for (int cr = querySet.getMinConcurrency(); cr <= querySet.getMaxConcurrency(); cr++) {
 
-                List<Future> threads = new ArrayList<>();
+                List<Pair<Future, Pair<String, Integer>>> threads = new ArrayList<>();
 
                 for (int i = 0; i < cr; i++) {
 
@@ -214,22 +214,22 @@ public class QueryExecutor implements Workload {
                                 thread =
                                 executeRunner((i + 1) + "," + cr + ":" + (q+1), dataModelResult, queryResult,
                                         querySetResult, scenario); //names need to be unique? then we'll have to change it
-                        threads.add(workloadExecutor.getPool().submit(thread));
+                        threads.add(new Pair<>(workloadExecutor.getPool().submit(thread), new Pair<>(query.getId(), query.getTimeoutDuration())));
                     }
 
                 }
 
-                for (Future thread : threads) {
+                for (Pair<Future, Pair<String, Integer>> thread: threads) {
                     try {
-                        thread.get(query.getTimeoutDuration(), TimeUnit.MILLISECONDS);
+                        thread.getKey().get(thread.getValue().getValue(), TimeUnit.MILLISECONDS);
                     } catch (TimeoutException e) {
                         failures++;
-                        thread.cancel(true);
+                        thread.getKey().cancel(true);
                         LOGGER.info("Cancelling thread due to timeout...");
                     }
                 }
             }
-            LOGGER.info("Query " + query.toString() + " exceeded timeout of " + query.getTimeoutDuration() + "ms " + failures + " times.");
+            LOGGER.info("Query '" + query.getId() + "' exceeded timeout of " + query.getTimeoutDuration() + "ms " + failures + " times.");
         }
     }
 
@@ -244,11 +244,8 @@ public class QueryExecutor implements Workload {
     protected void executeQuerySetParallel(DataModelResult dataModelResult, QuerySet querySet,
             QuerySetResult querySetResult, Scenario scenario) throws ExecutionException, InterruptedException {
         HashMap<String, Integer> mapQueriesToTimeouts = new HashMap<>();
-        for (Query q : querySet.getQuery()) {
-            mapQueriesToTimeouts.put(q.getId(),q.getTimeoutDuration());
-        }
         for (int cr = querySet.getMinConcurrency(); cr <= querySet.getMaxConcurrency(); cr++) {
-            List<Future> threads = new ArrayList<>();
+            List<Pair<Future<Void>, Pair<String, Integer>>> threads = new ArrayList<>();
             HashMap<String, Integer> mapQueriesToFailures = new HashMap<>(); // Maps queryID to # times it failed during this thread
             for (int i = 0; i < cr; i++) {
                 for (Query query : querySet.getQuery()) {
@@ -259,24 +256,25 @@ public class QueryExecutor implements Workload {
 
                         Callable<Void>
                                 thread =
-                                executeRunner((i + 1) + "," + cr, dataModelResult, queryResult,
+                                executeRunner((i + 1) + "," + cr + ":" + (q+1), dataModelResult, queryResult,
                                         querySetResult, scenario);
-                        threads.add(workloadExecutor.getPool().submit(thread));
+                        threads.add(new Pair<>(workloadExecutor.getPool().submit(thread), new Pair<>(query.getId(), query.getTimeoutDuration())));
                     }
                 }
 
-                for (Future thread : threads) {
+                for (Pair<Future<Void>, Pair<String, Integer>> thread: threads) {
                     try {
-                        thread.get(((MultiThreadedRunner) thread).getQueryTimeoutDuration(),TimeUnit.MILLISECONDS);
+                        thread.getKey().get(thread.getValue().getValue(), TimeUnit.MILLISECONDS);
                     } catch (TimeoutException te) {
-                        mapQueriesToFailures.put(((MultiThreadedRunner) thread).getQueryID(), mapQueriesToFailures.get(((MultiThreadedRunner) thread).getQueryID())+1); //increment in hashmap
-                        thread.cancel(true);
+                        mapQueriesToFailures.put(thread.getValue().getKey(), mapQueriesToFailures.get(thread.getValue().getKey()) + 1);
+                        thread.getKey().cancel(true);
                         LOGGER.info("Cancelling thread due to timeout...");
                     }
                 }
-            }
-            for (String qID : mapQueriesToFailures.keySet()) {
-                LOGGER.info("Query " + qID + " exceeded timeout of " + mapQueriesToTimeouts.get(qID) + "ms " + mapQueriesToFailures.get(qID) + " times.");
+
+                for (String qID : mapQueriesToFailures.keySet()) {
+                    LOGGER.info("Query " + qID + " exceeded timeout of " + mapQueriesToTimeouts.get(qID) + "ms " + mapQueriesToFailures.get(qID) + " times.");
+                }
             }
         }
     }

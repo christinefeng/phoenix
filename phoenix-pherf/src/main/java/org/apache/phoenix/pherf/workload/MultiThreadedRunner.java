@@ -165,7 +165,7 @@ class MultiThreadedRunner implements Callable<Void> {
                 conn.commit();
             }
         } catch (Exception e) {
-            LOGGER.error("Exception while executing query", e);
+            LOGGER.error("Exception while executing query, threadname " + threadName, e);
             exception = e.getMessage();
             throw e;
         } finally {
